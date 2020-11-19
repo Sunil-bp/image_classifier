@@ -4,7 +4,9 @@ except ImportError:
     import Image
 import os,re
 import pytesseract
+import traceback
 from time import perf_counter
+import random
 
 ##Get file list
 
@@ -17,16 +19,29 @@ def get_files(dir_name):
     print(f"Number of files {len(file_list)}")
     return file_list
 
+
 def get_image_data(file):
-    pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files (x86)\Tesseract-OCR\tesseract'
-    if os.path.exists(r'S:\IAMGE BACK\Screenshots\Screenshot_2020-01-02-22-28-41-424_com.tinder.jpg'):
+    if os.path.exists(file):
         print("File is reachable ")
-    print(pytesseract.image_to_string(Image.open(r'S:\IAMGE BACK\Screenshots\Screenshot_2020-02-04-15-11-02-661_com.google.android.youtube.jpg')))
+    try:
+        data  = pytesseract.image_to_string(Image.open(file))
+        print("Data from image ")
+        print(data)
+    except:
+        traceback.print_exc()
+
 
 def main():
+    pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files (x86)\Tesseract-OCR\tesseract'
     print('Starting image processing ')
     print("Getting all image files  ")
-    files = get_files(r"S:\\")
+    files = get_files(r"S:\IAMGE BACK\Screenshots")
+    for _  in files:
+        rand  = random.randint(0,len(files))
+        print(f"executing for file  {files[rand]} ")
+        get_image_data(files[rand])
+        wait  = input("check data  ")
+
     # print(*files,sep="\n")
 
 if __name__ == '__main__':
