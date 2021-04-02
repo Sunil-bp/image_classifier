@@ -1,0 +1,22 @@
+1. define problem statement 
+	-bored  and too calm 
+	-this looks fun 
+	-so , got shit ton of sreenshots  and i need to sort them .. 
+		-sort based on 
+			-test primarily  
+			-colour 
+			-file meta and its location 
+			-datetime  
+	
+	-rough idea is to have a database model with multiple tables inter connected 
+	
+	
+
+
+1. look at my options 
+	- open cv  looks fine .. no external dependency and opencv in general is a good lib 
+		-https://blog.finxter.com/how-to-extract-text-from-images-ocr-in-python-using-opencv-and-easyocr/#:~:text=You%20can%20extract%20text%20from%20images%20with%20EasyOCR%2C,the%20to-go%20library%20for%20extracting%20text%20from%20images.
+		
+		
+image text recognition works perfect 
+
