@@ -57,7 +57,7 @@ def main():
     pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files (x86)\Tesseract-OCR\tesseract'
     print('Starting image processing ')
     print("Getting all image files  ")
-    files = get_files(r"S:\IAMGE BACK\Screenshots")
+    files = get_files(r"C:\Users\sunil\Desktop\meme_classifier\test_data")
     final_data  = { }
     for _  in files[0:25]:
         rand  = random.randint(0,len(files))
