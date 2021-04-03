@@ -19,4 +19,21 @@
 		
 		
 image text recognition works perfect 
+18:31 02 April 2021
 
+-database 
+	-use sqllite with sql alchemy
+	-structure datbase 
+	
+		**************************
+		table 1  : filename  
+		primary_key  filename   filepath datetime  
+		
+		
+		table 2  text 
+		primary_key  forigne_to_filename text   
+		
+	- explore sqalchemy  
+		-https://www.tutorialspoint.com/sqlalchemy/index.htm
+		
+		-
