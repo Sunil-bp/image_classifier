@@ -2,18 +2,46 @@ import os
 from time import perf_counter
 import re
 import cv2
-import numpy as np
 import easyocr
 import matplotlib.pyplot as plt
 from pprint import pprint
-from sqlalchemy import create_engine, MetaData,and_, Table, Column, Integer, String, DateTime, Boolean, ForeignKey
+from sqlalchemy import create_engine, MetaData, Table, Column, Integer, String, DateTime, Boolean, ForeignKey
 import datetime
+
 
 def recognize_text(img_path):
     '''loads an image and recognizes text.'''
-
     reader = easyocr.Reader(['en'])
-    return reader.readtext(img_path, paragraph=True)
+    return reader.readtext(img_path,paragraph=True)
+
+
+def display_file():
+    img = cv2.imread(file)
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+
+    dpi = 80
+    fig_width, fig_height = int(img.shape[0] / dpi), int(img.shape[1] / dpi)
+    plt.figure()
+    f, axarr = plt.subplots(1, 2, figsize=(fig_width, fig_height))
+    axarr[0].imshow(img)
+    pprint(data)
+    for (bbox, text, prob) in data:
+        if prob >= 0.5:
+            # display
+            print(f'Detected text: {text} (Probability: {prob:.2f})')
+            # get top-left and bottom-right bbox vertices
+            (top_left, top_right, bottom_right, bottom_left) = bbox
+            top_left = (int(top_left[0]), int(top_left[1]))
+            bottom_right = (int(bottom_right[0]), int(bottom_right[1]))
+            # create a rectangle for bbox display
+            cv2.rectangle(img=img, pt1=top_left, pt2=bottom_right, color=(255, 0, 0), thickness=10)
+            # put recognized text
+            cv2.putText(img=img, text=text, org=(top_left[0], top_left[1] - 10), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                        fontScale=1, color=(255, 0, 0), thickness=8)
+    axarr[1].imshow(img)
+    plt.show()
+    # pprint(data)
+    wait = input("hello ")
 
 
 def get_files(dir_name):
@@ -26,15 +54,14 @@ def get_files(dir_name):
     print(f"\n\n\nNumber of files {len(file_list)}")
     return file_list
 
-def add_file_data(file,conn,filename,text):
+
+def add_file_data(file, engine, filename, text):
+    conn = engine.connect()
     print(f"Executing for file  {file} ")
-    print(os.path.basename(file))
     created = os.stat(file).st_mtime
-    print(f"file created date {datetime.datetime.fromtimestamp(created)}")
     s = filename.select().where(filename.columns.path == file)
     result = conn.execute(s)
     file_result = result.fetchall()
-    print(f"len of file table results {len(file_result)}")
     if len(file_result) == 0:
         print("file entry doesnot exists ")
         ins = filename.insert().values(name=os.path.basename(file),
@@ -42,32 +69,56 @@ def add_file_data(file,conn,filename,text):
                                        file_added=datetime.datetime.utcnow(),
                                        scanned=True,
                                        file_meta_updated=datetime.datetime.fromtimestamp(created))
-        print(str(ins))
-        print(ins.compile().params)
         result = conn.execute(ins)
         id = result.inserted_primary_key
         data = recognize_text(file)
-
-        # pprint(data)
         for each in data:
-            ##add to text
-            print(f"data is {each[1]}")
-            print(f"file id is {id[0]}")
+            print(each)
+            print(f'Detected text: {each[1]} (Probability: {88:.2f})')
             ins = text.insert().values(file_id=id[0],
                                        text_data=each[1],
                                        vector=str(each[0])
                                        )
-            print(str(ins))
-            print(ins.compile().params)
             conn.execute(ins)
-        ##scan and add to text data
     else:
-        print("data already exists  ")
+        return (f"Data already exists for  {file}")
+
+
+def get_files_status(files, engine, filename):
+    all_files_count = len(files)
+    new_file = []
+    synced_files = []
+    conn = engine.connect()
+    for file in files:
+        s = filename.select().where(filename.columns.path == file)
+        result = conn.execute(s)
+        file_result = result.fetchall()
+        if len(file_result) == 0:
+            new_file.append(file)
+        else:
+            synced_files.append(file)
+    print(f"Total number of files  {all_files_count}")
+    print(f"number of synced files  {len(synced_files)}")
+    print(f"number of new files  {len(new_file)}")
+
+
+def update_to_db(files, engine, filename, text):
+    for file in files:
+        add_file_data(file, engine, filename, text)
+
+def search_text(search_data, engine, filename, text):
+    print(f"Searching for text {search_data}")
+    conn = engine.connect()
+    s = text.select().where(filename.columns.text_data.contains(search_data))
+    result = conn.execute(s)
+    file_result = result.fetchall()
+    print(f"Number of file found  {len(file_result)}")
+
+
 
 def main():
     print('Starting image processing ')
-    print("Getting all image files  ")
-    files = get_files(r"C:\Users\sunil\Desktop\meme_classifier\test_data")
+    files = get_files(r"S:\images\Screenshots")
 
     engine = create_engine('sqlite:///college.db')
     meta = MetaData()
@@ -87,11 +138,13 @@ def main():
         Column('text_data', String),
         Column('vector', String),
     )
-    conn = engine.connect()
+    get_files_status(files, engine, filename)
 
-    for file in files:
-        add_file_data(file,conn,filename,text)
+    # update to database
+    update_to_db(files, engine, filename, text)
 
+    search_data = "python"
+    search_text(search_data, engine, filename, text)
 
 if __name__ == '__main__':
     t1_start = perf_counter()
