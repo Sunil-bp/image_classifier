@@ -15,7 +15,7 @@ def recognize_text(img_path):
     return reader.readtext(img_path,paragraph=True)
 
 
-def display_file():
+def display_file(file,data):
     img = cv2.imread(file)
     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
@@ -40,8 +40,6 @@ def display_file():
                         fontScale=1, color=(255, 0, 0), thickness=8)
     axarr[1].imshow(img)
     plt.show()
-    # pprint(data)
-    wait = input("hello ")
 
 
 def get_files(dir_name):
@@ -105,6 +103,7 @@ def get_files_status(files, engine, filename):
 def update_to_db(files, engine, filename, text):
     for file in files:
         add_file_data(file, engine, filename, text)
+
 
 def search_text(search_data, engine, filename, text):
     print(f"Searching for text {search_data}")

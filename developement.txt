@@ -36,4 +36,13 @@ image text recognition works perfect
 	- explore sqalchemy  
 		-https://www.tutorialspoint.com/sqlalchemy/index.htm
 		
-		-
+		-done .. need  help with sql  .. thats for another day 
+		
+		
+endo : 
+	-the processing is really slow 
+	-overall requirement can be better matched with firefox screenshot app 
+	-and do i really need to go back to that ! 
+	
+	
+	
